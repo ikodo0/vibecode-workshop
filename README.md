@@ -5,7 +5,7 @@ Turn an idea into a useful, working demo with AI agents. Start with a live page,
 ## Start here
 
 1. **One fork per team.** Fork [this repository](https://github.com/ikodo0/vibecode-workshop/fork), then invite your teammates as collaborators in your fork's Settings. Work in the team's fork; do not send your project PRs to this starter.
-2. **Connect.** Follow [connection instructions](docs/connect.md) for GitHub, your workshop SSH key and assigned environment.
+2. **Connect.** Follow [connection instructions](docs/connect.md) to use your personal SSH key through the workshop form or download your team key from the server access box on [the workshop page](https://intra.land/vibecode), then share GitHub access.
 3. **Run it.** Install Node.js 22 or newer on your laptop, or use Node in the workshop environment. Clone your fork, then run:
 
    ```sh

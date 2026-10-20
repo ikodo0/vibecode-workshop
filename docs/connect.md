@@ -4,19 +4,42 @@ Commands below use a macOS/Linux/WSL shell. Install [Git](https://git-scm.com/do
 
 ## 1. Obtain your assigned environment
 
-Each team receives an organiser handout (e.g. `team-NN.md`) with:
+Find your team's **server access** box on [the workshop page](https://intra.land/vibecode). The SSH host and port come from that box, the projector board or the organiser handout (`team-NN.md`); copy the assigned values rather than guessing them. Keep real host addresses out of the repository.
+
+### Personal SSH key
+
+Save your **public** key (for example, the contents of `~/.ssh/id_ed25519.pub`) in the **ssh public keys** form on [the workshop page](https://intra.land/vibecode). Keep the private key on your laptop. The organiser sync installs your public key on your team's server within about a minute, and removes it when you delete it from the form or leave the team.
+
+Connect from your laptop, replacing the key path, port and host with your own values:
+
+```sh
+ssh -i ~/.ssh/<your-key> -p <port> vc-team@<host>
+```
+
+Your first connection asks you to confirm the server's host key. Compare its fingerprint with the fingerprint the organiser shows before accepting it. If it differs, stop and ask the organiser.
+
+### Team SSH key
+
+Download these files from your team's **server access** box on `/vibecode`, or obtain them from the organiser handout:
+
 - A private SSH key file: `team-NN.key`
 - Pinned known hosts: `team-NN.known_hosts`
-- An SSH port (e.g. `220NN`) and container username `vc-team`
-- A public HTTPS URL: `https://team-NN.intra.land`
 
-Before connecting, set secure permissions on the private key:
+The box or handout also supplies the assigned SSH command, container username `vc-team` and public HTTPS URL (`https://team-NN.intra.land`). Before connecting, set secure permissions on the private key on macOS/Linux/WSL:
 
 ```sh
 chmod 600 team-NN.key
 ```
 
-Copy and run the exact SSH command from your team handout (`team-NN.md`) from the directory where `team-NN.key` and `team-NN.known_hosts` are stored:
+For Windows OpenSSH, run in PowerShell in the folder containing the downloaded files:
+
+```powershell
+icacls .\team-NN.key /inheritance:r /grant:r "${env:USERNAME}:(R)"
+```
+
+This removes inherited permissions and grants your Windows user read access; see [Microsoft's icacls reference](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/icacls). If SSH still reports an unprotected key, inspect its Security permissions for explicit access granted to other users and ask the organiser for help.
+
+Copy and run the exact SSH command from your team's server access box or handout from the directory where `team-NN.key` and `team-NN.known_hosts` are stored:
 
 ```sh
 ssh -i team-NN.key -p <port> -o UserKnownHostsFile=team-NN.known_hosts vc-team@<host>
@@ -24,7 +47,7 @@ ssh -i team-NN.key -p <port> -o UserKnownHostsFile=team-NN.known_hosts vc-team@<
 
 ### Adding teammate personal SSH keys (self-service)
 
-The team private key in the handout is the initial shared bootstrap credential provided by the organiser. To follow good credential security (AGENTS.md rule 8), teammates are encouraged to self-service add their individual personal public keys to `~/.ssh/authorized_keys` inside the container rather than copying private keys between laptops:
+The team private key is the initial shared bootstrap credential provided by the organiser. As an alternative to the workshop form, an already-connected teammate can append an individual personal **public** key to `~/.ssh/authorized_keys` inside the container, rather than copying personal private keys between laptops:
 
 ```sh
 echo "ssh-ed25519 AAAAC3... teammate@laptop" >> ~/.ssh/authorized_keys
@@ -36,6 +59,8 @@ Once added, that teammate can connect directly using their personal key:
 ```sh
 ssh -i ~/.ssh/id_ed25519 -p <port> -o UserKnownHostsFile=team-NN.known_hosts vc-team@<host>
 ```
+
+The automatic removal described above applies to form-managed keys; arrange removal of any manually appended key with your teammate or the organiser.
 
 Your personal notes may go in `.workshop.local.md`, which is ignored by Git. Never commit private host addresses, usernames, keys or access tokens.
 
@@ -67,7 +92,7 @@ Alternatively use GitHub's Fork button and clone the HTTPS URL from your fork's 
 
 ## 3. Enter the workshop machine
 
-Run the organiser's assigned SSH command **on your laptop** from the folder containing the key and known_hosts files:
+Run your personal-key command from section 1 **on your laptop**, or use the team-key command from the folder containing the downloaded key and known_hosts files:
 
 ```sh
 ssh -i team-NN.key -p <port> -o UserKnownHostsFile=team-NN.known_hosts vc-team@<host>
@@ -128,7 +153,7 @@ Continue with [deployment](deploy.md).
 
 | Symptom | Check / action |
 |---|---|
-| `Permission denied (publickey)` | Did you run `chmod 600 team-NN.key`? Are you in the directory containing `team-NN.key` and `team-NN.known_hosts`? If using a personal key, did a teammate append it to `~/.ssh/authorized_keys`? |
+| `Permission denied (publickey)` | Personal key: save the matching public key in the workshop form, confirm you belong to the team, and allow about a minute for sync. Team key: check `chmod 600` or Windows `icacls` permissions and the downloaded key/known_hosts paths. For a manually added key, confirm your teammate appended the correct public key. |
 | `Could not resolve hostname` | Copy the exact supplied hostname; ask organiser to verify DNS. |
 | GitHub clone works but push fails | Check collaborator invitation and your own GitHub authentication. |
 | PR targets the workshop starter | Run `gh repo set-default YOUR-OWNER/YOUR-FORK`; explicitly use `--repo` on PR commands. |
